@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{./seller/template/base :: layout(~{::title}, ~{::section}, ~{::style}, ~{::script})}">
+
+<head>
+	<title>모바일 키오스크</title>
+</head>
+
+<style></style>
+
+<script type="text/javascript">
+	function printPage(){
+		var initBody;
+		window.onbeforeprint = function(){
+			initBody = document.body.innerHTML;
+			document.body.innerHTML =  document.getElementById('print').innerHTML;
+		};
+		window.onafterprint = function(){
+			document.body.innerHTML = initBody;
+		};
+		window.print();
+		return false;
+	}
+</script>
+
+<body style="margin-top: 50px; margin-left: 10px; margin-right: 10px; margin-bottom: 50px;">
+
+
+<section>
+	<!-- QR코드 발급 -->
+	<div id="print">
+		<div class="container" style="padding-top: 50px;"></div>
+		<div class="container" style="background-color: rgb(191, 192, 192); height: 70vh; width: 70vw; margin-top: 50px;" >
+			<img th:src="|https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=http://localhost:8080/customer/${url}|" alt="test" style="position: relative; width: 60vh; height: 60vh; left: 50%; transform: translateX(-50%) translateY(-50%); top: 50%;">
+		</div>
+	</div>
+
+	<div style="text-align: center; padding-top: 50px;">
+		<a type="button" onclick="printPage()" class="btn btn-primary">출력</a>
+	</div>
+</section>
+
+</body>
+
+</html>
