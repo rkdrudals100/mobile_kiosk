@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout (title, content, style, script)">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+    <script src="https://kit.fontawesome.com/a4bdcbdc63.js" crossorigin="anonymous"></script>
+
+    <title th:replace="${title}">레이아웃 타이틀</title>
+
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<div th:replace="${style}">
+    <p>스타일</p>
+</div>
+
+
+<body style="margin-top: 50px; margin-left: 10px; margin-right: 10px; margin-bottom: 50px;">
+<!-- 상단 바 -->
+<header>
+    <nav class="navbar fixed-top navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+            <a th:href="@{/}" class="navbar-brand d-flex align-items-center">
+                <img src="/img/logo.png" alt="로고" width="30" height="30">
+                &nbsp;
+                <strong>Mobile Kiosk</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#contollerDropdown"
+                    aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation"
+                    style="position: fixed; right: 13vw;">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+</header>
+
+
+
+<!-- 상단바 메뉴-->
+<div class="flex-column flex-shrink-0 p-3 text-white bg-dark collapse dropdown-menu" id="contollerDropdown"
+     style="width: 280px; position: fixed; right: 12.5vw;">
+    <ul class="nav nav-pills flex-column mb-auto" >
+        <li>
+            <div sec:authorize-expr="isAuthenticated()" class="text-center">
+                <h5 th:text="|${#authentication.name} 님|" style="color: white" class="d-inline"></h5>
+            </div>
+        </li>
+        <li>
+            <hr>
+        </li>
+        <li class="nav-item">
+            <a th:href="@{/}" class="dropdown-item" style="color: white;">
+                홈으로 가기
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/menus}" class="dropdown-item" style="color: white;">
+                메뉴 관리
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/order-management}" class="dropdown-item" style="color: white;">
+                주문 관리
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/qr}" class="dropdown-item" style="color: white;">
+                QR 코드
+            </a>
+        </li>
+        <li>
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="dropdown-item" style="color: white;">로그아웃</button>
+            </form>
+        </li>
+        <li>
+            <hr>
+        </li>
+        <li>
+            <form th:id="${#authentication.name}" th:method="delete" th:action="@{/leave}">
+                <input type="text" hidden="true" name="userName" th:value="${#authentication.name}">
+                <button type="button" class="dropdown-item" style="color: white;"
+                        th:value="${#authentication.name}" onclick="leave(this.value)">회원탈퇴</button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+<!-- 컨텐츠 치환 부분 -->
+<div th:replace="${content}">
+    <p>레이아웃 컨텐츠</p>
+</div>
+
+<!-- 하단바 -->
+<!--<nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark" style="height: 40px;">-->
+<!--    <a class="navbar-brand p-3 " href="#" style="font-size: 17px;">Made by K.P.L</a>-->
+<!--    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"-->
+<!--            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">-->
+<!--        <span class="navbar-toggler-icon"></span>-->
+<!--    </button>-->
+<!--    <div class="collapse navbar-collapse" id="navbarCollapse">-->
+<!--        <ul class="navbar-nav mr-auto">-->
+<!--            <li class="nav-item active">-->
+<!--                <a class="nav-link">rkdrudals100@naver.com</a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link">tjdgh1785@naver.com</a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link">rebuild96@naver.com</a>-->
+<!--            </li>-->
+<!--            <li class="nav-item dropup">-->
+<!--            </li>-->
+<!--        </ul>-->
+<!--    </div>-->
+<!--</nav>-->
+
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+</script>
+
+<div th:replace="${script}">
+    <p>스크립트</p>
+</div>
+
+<script>
+    function leave(value){
+        if (confirm("회원 탈퇴 시 복구할 수 없습니다.\n탈퇴하시겠습니까?") == true){
+            document.getElementById(value).submit();
+        }else{
+            return;
+        }
+    }
+</script>
+</body>
+
+</html>

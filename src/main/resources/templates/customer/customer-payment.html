@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+	<script src="https://kit.fontawesome.com/a4bdcbdc63.js" crossorigin="anonymous"></script>
+
+	<title>모바일 키오스크</title>
+
+	<!-- CSS only -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+<script type="text/javascript">
+	window.history.forward();
+	function noBack(){window.history.forward();}
+</script>
+<!--<script>-->
+<!--	function goBack() {-->
+<!--		window.history.back();-->
+<!--	}-->
+<!--</script>-->
+
+<body onload="noBack();" onpageshow="if(event.persisted) noBack();" onunload="">
+	<!-- style="position: sticky; top: 0; z-index: 1;" -->
+	<header class="fixed-top" style="z-index: 2;">
+		<nav class="navbar fixed-top navbar-light bg-none">
+			<div class="container-fluid">
+<!--				<a href="#" onclick="goBack()" class="text-dark text-decoration-none">-->
+<!--					<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"-->
+<!--						class="bi bi-arrow-left-short" viewBox="0 0 16 16">-->
+<!--						<path fill-rule="evenodd"-->
+<!--							d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />-->
+<!--					</svg>-->
+<!--				</a>-->
+				<div></div>
+				<!--
+                <a href="./customer-sub.html" class="navbar-brand d-flex justify-content-center align-items-center text-dark text-decoration-none">
+                    <strong>KPL치킨 한경대점</strong>
+                </a>-->
+				<div></div>
+			</div>
+		</nav>
+	</header>
+
+	<div class="card-body bg-white border-top border-bottom" style="position: sticky; top: 0; z-index: 1;">
+		<h5 class="card-text text-center"><strong>결제</strong></h5>
+	</div>
+	<form method="post" th:action th:object="${GetPaymentFormDto}">
+		<div class="container mt-4" style="margin-bottom: 51px; margin-left: 2px; margin-right: 2px;">
+			<label for="requirements" class="form-label">요청사항</label>
+			<input class="form-control" autocomplete="off" id=requirements th:field="*{requirements}" placeholder="요청사항을 알려주세요.">
+		</div>
+<!--	</form>-->
+	<hr style="border: solid 3px gray;">
+	<!-- 추가 메뉴 -->
+	<div class="container mt-4" style="margin-bottom: 51px; margin-left: 2px; margin-right: 2px;">
+		<div class="row">
+			<div class="col">
+				<h5>결제수단</h5>
+			</div>
+			<div>
+				<div class="container mt-3" style="margin-left: 2px; margin-bottom: 100px;">
+					<div class="row mt-2">
+						<div class="col">
+							직접 결제
+						</div>
+					</div>
+					<div class="row mt-2">
+						<div class="col offset-1">
+							<div class="form-check">
+								<label class="form-check-label d-block">
+									<input class="form-check-input" type="radio" name=whichPayment value="card" checked="checked">
+									카드
+								</label>
+								<label class="form-check-label d-block">
+									<input class="form-check-input" type="radio" name=whichPayment value="cash">
+									현금
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="row mt-2">
+						<div class="col">
+							<div class="col">
+								그 외 수단
+							</div>
+							<div class="col offset-1">
+								<div class="form-check">
+									<label class="form-check-label d-block">
+										<input class="form-check-input" type="radio" name=whichPayment value="kakaoPay">
+										카카오 페이
+									</label>
+									<label class="form-check-label d-block">
+										<input class="form-check-input" type="radio" name=whichPayment value="naverPay">
+										네이버 페이
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<hr style="border: solid 3px gray;">
+			<div class="row" style="font-size: 20px;">
+				<div class="col"><strong>총 결제금액</strong></div>
+				<div class="col text-end"><strong>[[${order.totalPrice}]]원</strong></div>
+			</div>
+
+		</div>
+	</div>
+
+
+
+
+<!--	<form method="post" th:action>-->
+		<button type="submit" class="btn btn-primary fixed-bottom" style="width: 100%; height: 50px; border-radius: 0;">
+			<strong>결제</strong>
+		</button>
+	</form>
+
+	<!-- JavaScript Bundle with Popper -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+	</script>
+</body>
+
+</html>

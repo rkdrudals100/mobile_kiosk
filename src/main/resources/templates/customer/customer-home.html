@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+	<script src="https://kit.fontawesome.com/a4bdcbdc63.js" crossorigin="anonymous"></script>
+
+	<title>모바일 키오스크</title>
+
+	<!-- CSS only -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+
+<style>
+    .menuImage {
+        border-radius: 7px;
+        width: 12vh;
+        height: 12vh;
+    }
+
+    body{ -ms-overflow-style: none; } ::-webkit-scrollbar { display: none; }
+</style>
+    
+<body style="padding-top: 14vh;">
+    <header style="position: sticky; top: 0; z-index: 1;">
+        <nav class="navbar fixed-top navbar-light bg-white">
+            <div class="container-fluid">
+                <div></div>
+                <a href="customer-home.html" th:href="|/customer/${url}|" class="navbar-brand d-flex justify-content-center align-items-center text-dark text-decoration-none">
+                    <strong>[[${storeName}]]</strong>
+                </a>
+                <div></div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="fixed-top bg-white" style="margin-top: 55px;">
+        <ul class="tab-content" id="pills-tab" role="tablist" style="white-space:nowrap; overflow: auto;" >
+            <li th:each="category : ${categories}" class="nav-item m-1 d-inline" role="presentation">
+                <a class="btn btn-outline-secondary" th:href="|#${category.name}|">[[${category.name}]]</a>
+            </li>
+        </ul>
+    </div>
+
+    <!--본문-->
+    <th:block th:each="category : ${categories}">
+        <div class="row">
+            <div style="height: 14vh; margin-top: -14vh;" th:id="${category.name}"></div>
+            <div class="mx-4">
+                <h1><strong>[[${category.name}]]</strong></h1>
+            </div>
+            <div th:each="menu : ${category.items}">
+                    <div class="container row" style="height: 12vh;">
+                        <a th:href="|items/${menu.id}|" style="text-decoration: none; position: relative; color: black;" class="row">
+                            <div class="col-9">
+                                <h5><strong>[[${menu.name}]]</strong></h5>
+                                <p style="color: gray; font-size: 15px; line-height: 50%;">[[${menu.shortDescription}]]</p>
+                                <h6 style="line-height: 50%;">[[${menu.price}]]원</h6>
+                            </div>
+                            <div class="col-3">
+                                <img th:if="${menu.image != null}"
+                                     field="image + ${item.id}" th:src="|/menus/images/${menu.getImage()}|" class="menuImage">
+                            </div>
+                            <span th:if="${menuStat.last}">&nbsp;</span>
+                        </a>
+                    </div>
+                <hr th:if="${!menuStat.last}">
+                <hr th:if="${menuStat.last}" class="mb-0">
+            </div>
+            <hr th:if="${!categoryStat.last}" style="border: solid 3px gray;">
+        </div>
+    </th:block>
+    <div style="background-color: lightgray; color: gray; height: 100vh;">
+        <div class="mx-2 py-2">
+            <p>유의 사항</p>
+            <div style="font-size: 15px;">
+                <p>* 본 웹은 실제로 결제가 되지 않습니다.</p>
+                <p>* 한경대학교 캡스톤 디자인을 위해 만들어진 웹 입니다.</p>
+            </div>
+        </div>
+    </div>
+
+    
+    <button type="button" class="btn btn-primary fixed-bottom" onclick="location.href='/customer/shopping-basket?delete=false'" style="width: 100%; height: 50px; border-radius: 0;">
+        <strong>장바구니 보기</strong>
+    </button>
+
+      <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>

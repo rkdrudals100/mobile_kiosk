@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{./seller/template/base :: layout(~{::title}, ~{::section}, ~{::style}, ~{::script})}">
+
+<head>
+	<title>모바일 키오스크</title>
+</head>
+<style>
+	.column{
+		border: 1px solid #cecece;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	.field-error {
+		border-color: #dc3545;
+		color: #dc3545;
+	}
+</style>
+<body style="margin-top: 50px; margin-left: 10px; margin-right: 10px; margin-bottom: 50px;">
+	<section>
+		<div class="container" style="padding-top: 50px;">
+			<h1 class="text-center">[[${item.name}]] 수정</h1>
+			<div th:if="${param.success_options}" class="alert alert-success text-center timeout">
+				옵션그룹이 생성되었습니다.
+			</div>
+			<div th:if="${param.delete_options}" class="alert alert-success text-center timeout">
+				옵션그룹이 삭제되었습니다.
+			</div>
+			<div th:if="${param.success_option}" class="alert alert-success text-center timeout">
+				옵션이 생성되었습니다.
+			</div>
+			<div th:if="${param.fail_options}" class="alert alert-error field-error text-center timeout">
+				옵션그룹 생성에 문제가 있습니다.
+			</div>
+			<div th:if="${param.fail_option}" class="alert alert-error field-error text-center timeout">
+				옵션 생성에 문제가 있습니다.
+			</div>
+			<div th:if="${param.delete_option}" class="alert alert-success text-center timeout">
+				옵션이 삭제되었습니다.
+			</div>
+			<div th:if="${param.menu}" class="alert alert-error field-error text-center timeout">
+				메뉴 수정에 문제가 있습니다.
+			</div>
+			<div class="row mt-5 justify-content-center">
+				<div class="col-md-5">
+					<div class="container">
+						<div class="col row">
+							<div class="col-5">
+								<span data-bs-toggle="modal" data-bs-target="#plusOptionGroup"
+										type="button" role="tab" aria-controls="pills-category" aria-selected="true">옵션그룹 추가</span>
+								<div class="tab-content column overflow-auto rounded" style="height: 400px;" id="pills-tab" role="tablist">
+									<div th:each="optionGroup : ${item.getOptionGroups()}" class="nav">
+										<h6 th:field="|${optionGroup.name}|" data-bs-toggle="pill" th:data-bs-target="|#God${optionGroup.id}|"
+												type="button" role="tab" th:aria-controls="|God${optionGroup.id}|">[[${optionGroup.name}]]</h6>
+									</div>
+								</div>
+							</div>
+							<div class="tab-content col-md-7" id="pills-tabContent">
+								<th:block th:each="optionGroup : ${item.getOptionGroups()}">
+									<div class="tab-pane fade" th:id="|God${optionGroup.id}|" th:classappend="${current.toString()} == ${optionGroup.getId().toString()} ? 'show active'" role="tabpanel" th:aria-labelledby="|God${optionGroup.id}|">
+										<div class="row">
+											<div class="col-md-6">
+												현재: [[${optionGroup.name}]]
+											</div>
+											<div class="col-md-6">
+												<form th:id="${optionGroup.id}" th:method="delete" th:action="|/menus/options/${optionGroup.id}|">
+													<input type="text" hidden="true" name="itemId" th:value="${item.id}">
+													<button type="button" class="btn-close" style="CURSOR:hand; float: right;" title="옵션그룹 삭제"
+															th:value="${optionGroup.id}" onclick="delete_optionGroup(this.value)"></button>
+												</form>
+											</div>
+										</div>
+										<div class="row">
+											<form method="post" th:action="@{/menus/options/option}" class="col row container text-center">
+												<div class="column overflow-auto rounded" style="height: 310px;">
+													<p th:each="option : ${optionGroup.getOptions()}">
+														[[${option.name}]]: [[${option.price}]]원
+														<span type="button" class="btn-close" style="CURSOR:hand; float: right;" title="옵션 삭제"
+															  th:id="${option.id}" th:value="${optionGroup.id}" onclick="delete_option(this);"></span>
+													</p>
+												</div>
+												<input type="text" th:value="${optionGroup.id}" name="optionGroup" hidden="true">
+												<input type="text" th:value="${item.id}" name="itemId" hidden="true">
+												<input autocomplete='off' type="text" name="optionName" class="d-inline" placeholder="옵션 이름">
+												<input autocomplete='off' type="text" name="optionPrice" class="d-inline" placeholder="옵션 가격">
+												<button type="submit" style="width: 100%;">생성</button>
+											</form>
+										</div>
+									</div>
+								</th:block>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-7">
+					<form id="menuDelete" th:method="delete" th:action>
+						<input type="text" hidden="true" name="categoryId" th:value="${item.getCategory().id}">
+						<button type="button" class="btn-close" style="CURSOR:hand; float: right;" title="메뉴 삭제"
+						onclick="delete_menu()"></button>
+					</form>
+					<form id="menuAdd" method="post" th:action="|/menus/*{id}|" enctype="multipart/form-data" th:object="${item}">
+						<div class="row">
+							<div class="col-md-8">
+								<input type="text" class="form-control" hidden="true" th:field="*{id}">
+								<div class="mb-3">
+									<label for="name" class="col-form-label">제품명</label>
+									<input autocomplete='off' type="text" class="form-control" id="name" th:field="*{name}">
+								</div>
+								<div class="mb-3">
+									<label for="price" class="col-form-label">가격 [[${item.getCategory().name}]]</label>
+									<input autocomplete='off' type="text" class="form-control" id="price" th:field="*{price}">
+								</div>
+								<input type="text" hidden="true" name="categoryId" th:value="${item.getCategory().id}">
+							</div>
+							<div class="col-md-1"></div>
+							<div class="col-md-2">
+								<div class="">
+									<input type="checkbox" id="visible" th:field="*{visible}" class="form-check-input">
+									<label for="visible" class="form-check-label">판매 여부</label>
+								</div>
+								<div class="mt-3 " style="width: 10vw; height: 10vw;">
+									<img th:if="*{image == null}" id="img" src="/img/logo.png" alt="이미지" style="width: 100%; height: 100%;" border="2">
+									<img th:if="*{image != null}" id="img" th:src="|/menus/images/*{image}|" alt="이미지" style="width: 100%; height: 100%;" border="2">
+									<button th:if="${item.image != null}" type="button" class="btn text-center" style="width: 10vw;" onclick="delete_img();">이미지 삭제</button>
+								</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="shortDescription" class="col-form-label">짧은 메뉴 소개</label>
+							<input autocomplete='off' type="text" class="form-control" id="shortDescription" th:field="*{shortDescription}">
+						</div>
+						<div class="mb-3">
+							<label for="description" class="col-form-label">메뉴 설명</label>
+							<textarea class="form-control" id="description" th:field="*{description}"></textarea>
+						</div>
+						<input type="text" hidden="true" name="categoryName" th:value="${category}">
+						<input type="file" th:field="*{image}" accept="image/*" onchange="setThumbnail(event);"/>
+					</form>
+
+<!--					이미지 제거용 폼-->
+					<form id="imgDelete" th:if="${item.image != null}" th:method="delete" th:action="@{/menus/{id}/image(id=${item.id})}">
+					</form>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" onclick="location.href='/menus'">취소</button>
+						<button type="submit" form="menuAdd" class="btn btn-primary">확인</button>
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+
+
+		<!-- 옵션그룹 추가 -->
+		<div class="modal fade" id="plusOptionGroup" tabindex="-1" aria-labelledby="plusOptionGroup" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">옵션 그룹추가</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="category" method="post" th:action="@{/menus/options}">
+							<div class="mb-3">
+								<label for="optionGroupName" class="col-form-label">옵션 그룹명</label>
+								<input autocomplete='off' type="text" class="form-control" id="optionGroupName" name="optionGroupName" placeholder="카테고리명을 입력해주세요.">
+								<label class="col-form-label d-block">필수옵션 여부
+									<input type="checkbox" name="essential" id="essential" onclick="select_essential();">
+								</label>
+								<label class="col-form-label">멀티체크 여부
+									<input type="checkbox" name="multiple" id="multiple" onclick="select_multiple();">
+								</label>
+								<input hidden="true" name="itemId" tH:value="${item.id}">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+						<button type="submit" form="category" class="btn btn-primary">확인</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<form id="deleteOption" th:method="delete">
+			<input type="text" hidden="true" id="current-optionGroupId" name="currentOptionGroupId">
+			<input type="text" hidden="true" name="itemId" th:value="${item.id}">
+		</form>
+	</section>
+<script>
+	function setThumbnail(event) {
+		var reader = new FileReader();
+		var input = document.getElementById('image');
+
+		reader.onload = function(event) {
+			var img = document.getElementById('img')
+			img.setAttribute("src", event.target.result);
+		};
+		if (event.target.files[0].size > 5000 * 1024) {
+			alert("파일이 너무 큽니다.  5120000 보다 작은 파일을 사용하세요. \n" +
+					"현재 이미지 사이즈 " + event.target.files[0].size);
+			input.value = null;
+			img.setAttribute("src", "/img/logo.png");
+			return;
+		}
+		reader.readAsDataURL(event.target.files[0]);
+	}
+
+	function delete_img(){
+		if (confirm("이미지를 삭제하시겠습니까?") == true){
+			document.getElementById('imgDelete').submit();
+		}else{
+			return;
+		}
+	}
+
+	function delete_menu(){
+		if (confirm("메뉴를 삭제하시겠습니까?") == true){
+			document.getElementById('menuDelete').submit();
+		}else{
+			return;
+		}
+	}
+
+	function delete_optionGroup(value){
+		if (confirm("옵션 그룹을 삭제하시겠습니까?\n옵션 그룹안에 옵션들도 같이 삭제됩니다.") == true){
+			document.getElementById(value).submit();
+		}else{
+			return;
+		}
+	}
+
+	function delete_option(element){
+		if (confirm("해당 옵션을 삭제하시겠습니까?") == true){
+			let form = document.getElementById('deleteOption');
+			document.getElementById('current-optionGroupId').value = element.getAttribute('value');
+			form.action = "/menus/options/option/" + element.id;
+			form.submit();
+		}else{
+			return;
+		}
+	}
+
+	function select_essential() {
+		let essential = document.getElementById('essential');
+		let multiple = document.getElementById('multiple');
+
+		if (essential.checked) {
+			multiple.disabled = true;
+		} else {
+			multiple.disabled = false;
+		}
+	}
+
+	function select_multiple() {
+		let essential = document.getElementById('essential');
+		let multiple = document.getElementById('multiple');
+
+		if (multiple.checked) {
+			essential.disabled = true;
+		} else {
+			essential.disabled = false;
+		}
+	}
+
+	setTimeout(function() {
+		$(".timeout").hide();
+	}, 1500);
+</script>
+</body>
+</html>

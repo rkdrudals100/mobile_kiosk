@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="~{./seller/template/base :: layout(~{::title}, ~{::section}, ~{::style}, ~{::script})}">
+
+<head>
+	<title>모바일 키오스크</title>
+</head>
+<style>
+	/* 리스트 css */
+	.column{
+		border: 1px solid #cecece;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	.field-error {
+		border-color: #dc3545;
+		color: #dc3545;
+	}
+</style>
+
+
+<body style="margin-top: 50px; margin-left: 10px; margin-right: 10px; margin-bottom: 50px;">
+
+
+<section>
+
+	<div class="container" style="padding-top: 50px;">
+		<div th:if="${param.overlap}" class="alert alert-error field-error text-center timeout">
+		카테고리명이 중복되었습니다. 다른 이름을 사용해주세요.
+		</div>
+		<div th:if="${param.fail_category}" class="alert alert-error field-error text-center timeout">
+			카테고리명에 문제가 있습니다.
+		</div>
+		<div th:if="${param.authorize}" class="alert alert-error field-error text-center timeout">
+			권한이 없습니다.
+		</div>
+		<div th:if="${param.add_category}" class="alert alert-success text-center timeout">
+			카테고리가 생성되었습니다.
+		</div>
+		<div th:if="${param.delete_category}" class="alert alert-success text-center timeout">
+			카테고리가 삭제되었습니다.
+		</div>
+		<div th:if="${param.add}" class="alert alert-success text-center timeout">
+			메뉴가 등록되었습니다.
+		</div>
+		<div th:if="${param.change}" class="alert alert-success text-center timeout">
+			메뉴가 수정되었습니다.
+		</div>
+		<div th:if="${param.menu}" class="alert alert-error field-error text-center timeout">
+			메뉴 수정에 문제가 있습니다.
+		</div>
+		<div th:if="${param.delete}" class="alert alert-success text-center timeout">
+			메뉴가 삭제되었습니다.
+		</div>
+		<ul class="tab-content nav nav-pills m-2" id="pills-tab" role="tablist">
+			<li class="nav-item m-1" role="presentation">
+				<button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#plusCategoryModal"
+						type="button" role="tab" aria-controls="pills-category" aria-selected="true">카테고리 추가</button>
+			</li>
+			<li th:each="category : ${categories}">
+				<button class="btn btn-outline-secondary m-1" th:field="|${category.name}|" data-bs-toggle="pill" th:data-bs-target="|#God${category.id}|"
+						type="button" role="tab" th:aria-controls="|God${category.id}|"
+						th:classappend="${current.toString()} == ${category.id.toString()} ? 'active'"
+						th:attrprepend="class = ${current.toString()} == ${category.name} ? 'show active '">[[${category.name}]]</button>
+			</li>
+		</ul>
+
+		<hr>
+		<!-- 카테고리 탭 컨텐츠(카테고리별 음식 메뉴)-->
+		<div class="tab-content" id="pills-tabContent">
+			<th:block th:each="category : ${categories}">
+				<div class="tab-pane fade" th:classappend="${current.toString()} == ${category.id.toString()} ? 'show active'", th:attrprepend="class = ${current.toString()} == ${category.name} ? 'show active '" th:id="|God${category.id}|" role="tabpanel" th:aria-labelledby="|God${category.id}|">
+					<div class="row">
+						<div class="col-md-4">
+							<form method="get" th:action="@{/menus/menu}">
+								<input type="text" th:value="${category.name}" name="category" hidden="true">
+								<input type="text" th:value="${category.id}" name="categoryId" hidden="true">
+								<button class="text-center btn" type="submit" style="width: 100%;">
+									메뉴 추가
+								</button>
+							</form>
+						</div>
+						<div class="col-md-6"></div>
+						<div class="col-md-2">
+							<form id="categoryDelete" th:method="delete" th:action="|/menus/category/${category.id}|">
+								<button type="button" class="text-right btn" style="CURSOR:hand; width: 100%;"
+										th:title="|${category.name} 카테고리 삭제|" th:value="${category.id}" onclick="delete_category(this.value)">카테고리 삭제</button>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 column overflow-auto rounded" style="height: 500px;">
+							<div class="card text-black bg-Light m-1" th:each="menu : ${category.items}">
+								<div class="row">
+									<div th:id="${menu.id}" onclick="click_test(this.id);">
+										<h5 class="text-center">[[${menu.name}]]</h5>
+										<div hidden="true">
+											<input type="text" disabled th:value="${menu.name}">
+											<input type="text" disabled th:value="${menu.price}">
+											<input type="text" disabled th:value="${menu.shortDescription}">
+											<input type="text" disabled th:value="${menu.description}">
+											<input type="text" disabled th:value="${menu.image}">
+											<input type="text" disabled th:value="${menu.visible}">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-8 column overflow-auto rounded" style="height: 500px;">
+							<div class="row">
+								<div class="col-md-8">
+									<div class="mb-3">
+										<label for="displayName" class="col-form-label">제품명</label>
+										<input type="text" class="form-control displayName" id="displayName" disabled>
+									</div>
+									<div class="mb-3">
+										<label for="displayPrice" class="col-form-label">가격</label>
+										<input type="text" class="form-control displayPrice" id="displayPrice" disabled>
+									</div>
+								</div>
+								<div class="col-md-1"></div>
+								<div class="col-md-2">
+									<div>
+										<input type="checkbox" id="displayVisible"class="form-check-input displayVisible" disabled>
+										<label for="displayVisible" class="form-check-label">판매 여부</label>
+									</div>
+									<div class="mt-3 " style="width: 10vw; height: 10vw;">
+										<img id="displayImage" src="/img/logo.png" alt="이미지" style="width: 100%; height: 100%;" border="2"
+										class="displayImage">
+									</div>
+								</div>
+							</div>
+							<div class="mb-3">
+								<label for="displayShortDescription" class="col-form-label">짧은 메뉴 소개</label>
+								<input type="text" class="form-control displayShortDescription" id="displayShortDescription" disabled>
+							</div>
+							<div class="mb-3">
+								<label for="displayDescription" class="col-form-label">메뉴 설명</label>
+								<textarea class="form-control displayDescription" id="displayDescription" disabled></textarea>
+							</div>
+
+							<form id="edit-form" method="get" class="edit-form">
+								<button class="btn btn-primary text-center goEdit" id="goEdit" disabled type="submit" style="width: 100%;">수정하로 가기</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</th:block>
+		</div>
+	</div>
+
+	<!-- 카테고리 추가 -->
+	<div class="modal fade" id="plusCategoryModal" tabindex="-1" aria-labelledby="plusCategoryModal" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">카테고리 추가</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form id="category" method="post" th:action="@{/menus/category}">
+						<div class="mb-3">
+							<label for="categoryName" class="col-form-label">카테고리명</label>
+							<input autocomplete='off' type="text" class="form-control" id="categoryName" name="categoryName" placeholder="카테고리명을 입력해주세요.">
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+					<button type="submit" form="category" class="btn btn-primary">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	setTimeout(function() {
+		$(".timeout").hide();
+	}, 3000);
+
+	function delete_category(id){
+		if (confirm("카테고리를 삭제하시겠습니까?") == true){
+			document.getElementById('categoryDelete').action = "/menus/category/" + id;
+			document.getElementById('categoryDelete').submit();
+		}else{
+			return;
+		}
+	}
+
+	function click_test(click_id){
+		let element = document.getElementById(click_id);
+		for (const elementsByClassNameElement of document.getElementsByClassName('displayName')) {
+			elementsByClassNameElement.value = element.getElementsByTagName('input')[0].value;
+		}
+
+		for (const elementsByClassNameElement of document.getElementsByClassName('displayPrice')) {
+			elementsByClassNameElement.value = element.getElementsByTagName('input')[1].value;
+		}
+
+		for (const elementsByClassNameElement of document.getElementsByClassName('displayShortDescription')) {
+			elementsByClassNameElement.value = element.getElementsByTagName('input')[2].value;
+		}
+
+		for (const elementsByClassNameElement of document.getElementsByClassName('displayDescription')) {
+			elementsByClassNameElement.value = element.getElementsByTagName('input')[3].value;
+		}
+
+
+		if (element.getElementsByTagName('input')[4].value != "") {
+			for (const elementsByClassNameElement of document.getElementsByClassName('displayImage')) {
+				elementsByClassNameElement.setAttribute("src", "/menus/images/" + element.getElementsByTagName('input')[4].value);
+			}
+		}else {
+			for (const elementsByClassNameElement of document.getElementsByClassName('displayImage')) {
+				elementsByClassNameElement.setAttribute("src", "/img/logo.png");
+			}
+		}
+
+		if (element.getElementsByTagName('input')[5].value == 'true') {
+			for (const elementsByClassNameElement of document.getElementsByClassName('displayVisible')) {
+				elementsByClassNameElement.checked = true;
+			}
+		}else {
+			for (const elementsByClassNameElement of document.getElementsByClassName('displayVisible')) {
+				elementsByClassNameElement.checked = false;
+			}
+		}
+
+		for (const elementsByClassNameElement of document.getElementsByClassName('edit-form')) {
+			elementsByClassNameElement.setAttribute("action", "/menus/" + click_id);
+		}
+
+		for (const elementsByClassNameElement of document.getElementsByClassName('goEdit')) {
+			elementsByClassNameElement.removeAttribute('disabled');
+		}
+	}
+</script>
+
+</body>
+
+</html>
